@@ -1,33 +1,55 @@
+from flask import Flask, render_template, url_for, request
+import json
 import random
-from flask import Flask, render_template, url_for
+
 app = Flask(__name__)
 
-ran = random.randrange(1,10,1)
-count = 0
-num = -1
+@app.route("/")
+def main():
+    return render_template('main.html')
 
-print("===============================")
-print("보물 찾기 게임")
-print("===============================")
-
-while(ran != num):
-    try:
-        num = int(input("몇번 방에 보물이 있을까요(1~10)? =>"))
-        count +=1
-    except:
-        print("그런 방은 없어요~")
-        count +=1
-    else:
-        if(num < ran):
-            print("UP\t시도 횟수",count)
-        elif(num > ran):
-            print("DOWN\t시도 횟수",count)
-        else:
-            @app.route('/')
-            def trea():note
-                return render_template('image.html')
+@app.route("/form")
+def form():
+    return render_template('game.html')
     
+@app.route('/method', methods=['POST'])
+def method():
+    if request.method == 'POST':
+        name = request.form['suspect']
+        print(name)
+        with open("static/save.txt","w",encoding='utf-8') as f:
+            f.write("%s" % (name))
+        return render_template('sure.html', data=name)
+
+@app.route("/image")
+def image():
+    return render_template('image.html')
+
+
+
+@app.route('/result')
+def result():
+    people = ['도둑', '경찰', '평민', '의사']
+    t_suspect = ("%s" % random.choice(people))
+
+    with open("static/test.txt","w",encoding='utf-8') as f:
+        f.write("%s" % t_suspect)
+    
+    with open("static/test.txt","r",encoding='utf-8') as file:
+        result_suspect = file.read()
+
+    with open("static/save.txt", "r",encoding='utf-8') as file:
+        p_suspect = file.read()
+
+    if result_suspect == p_suspect:
+        return render_template('image.html')
+    else:
+        return '꽝...당신이 지목한 범인:{}'.format(p_suspect)
+ 
+
+
+@app.route('/data')
+def data():
+    return render_template()
 if __name__ == '__main__':
-    app.run()
-
-
+    app.run(debug=True)
